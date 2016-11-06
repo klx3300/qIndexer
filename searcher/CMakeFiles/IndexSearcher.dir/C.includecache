@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/imzhwk/uniquestudio/q1/publicheader.h
+
+/home/imzhwk/uniquestudio/q1/publicutils.h
+publicheader.h
+/home/imzhwk/uniquestudio/q1/publicheader.h
+
+/home/imzhwk/uniquestudio/q1/searcher/searcher.c
+stdlib.h
+-
+string.h
+-
+stdio.h
+-
+../publicheader.h
+/home/imzhwk/uniquestudio/q1/publicheader.h
+searcher.h
+/home/imzhwk/uniquestudio/q1/searcher/searcher.h
+../publicutils.h
+/home/imzhwk/uniquestudio/q1/publicutils.h
+
+/home/imzhwk/uniquestudio/q1/searcher/searcher.h
+

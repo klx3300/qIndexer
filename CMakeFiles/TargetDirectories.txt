@@ -1,0 +1,12 @@
+/home/imzhwk/uniquestudio/q1/CMakeFiles/rebuild_cache.dir
+/home/imzhwk/uniquestudio/q1/CMakeFiles/edit_cache.dir
+/home/imzhwk/uniquestudio/q1/CMakeFiles/main.dir
+/home/imzhwk/uniquestudio/q1/lf/CMakeFiles/edit_cache.dir
+/home/imzhwk/uniquestudio/q1/lf/CMakeFiles/rebuild_cache.dir
+/home/imzhwk/uniquestudio/q1/lf/CMakeFiles/ContentIndexer.dir
+/home/imzhwk/uniquestudio/q1/indexer/CMakeFiles/edit_cache.dir
+/home/imzhwk/uniquestudio/q1/indexer/CMakeFiles/rebuild_cache.dir
+/home/imzhwk/uniquestudio/q1/indexer/CMakeFiles/ListFiles.dir
+/home/imzhwk/uniquestudio/q1/searcher/CMakeFiles/rebuild_cache.dir
+/home/imzhwk/uniquestudio/q1/searcher/CMakeFiles/edit_cache.dir
+/home/imzhwk/uniquestudio/q1/searcher/CMakeFiles/IndexSearcher.dir

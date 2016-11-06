@@ -1,0 +1,2 @@
+/usr/bin/ar qc libIndexSearcher.a  CMakeFiles/IndexSearcher.dir/searcher.c.o
+/usr/bin/ranlib libIndexSearcher.a

@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/imzhwk/uniquestudio/q1/indexer/indexer.c
+stdio.h
+-
+stdlib.h
+-
+magic.h
+-
+string.h
+-
+ctype.h
+-
+indexer.h
+/home/imzhwk/uniquestudio/q1/indexer/indexer.h
+../publicheader.h
+/home/imzhwk/uniquestudio/q1/publicheader.h
+../publicutils.h
+/home/imzhwk/uniquestudio/q1/publicutils.h
+
+/home/imzhwk/uniquestudio/q1/indexer/indexer.h
+
+/home/imzhwk/uniquestudio/q1/publicheader.h
+
+/home/imzhwk/uniquestudio/q1/publicutils.h
+publicheader.h
+/home/imzhwk/uniquestudio/q1/publicheader.h
+

@@ -1,0 +1,1 @@
+/usr/bin/cc     CMakeFiles/main.dir/main.c.o CMakeFiles/main.dir/publicutils.c.o  -o main -rdynamic -lmagic indexer/libListFiles.a lf/libContentIndexer.a searcher/libIndexSearcher.a 
