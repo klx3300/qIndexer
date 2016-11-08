@@ -1,2 +1,0 @@
-/usr/bin/ar qc libContentIndexer.a  CMakeFiles/ContentIndexer.dir/lf.c.o
-/usr/bin/ranlib libContentIndexer.a

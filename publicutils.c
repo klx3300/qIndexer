@@ -155,6 +155,7 @@ void addItem(unsigned int id,const char* s,int flag_autodelete){
     for(int i=0;i<32;i++){
         //printf("iterated to ln%d\n",i);
         if(getLastBit(key)){
+            pthread_mutex_lock(&treemutex);
             if(searchptr->p1==NULL){
                 searchptr->p1=malloc(sizeof(struct StorageTreeNode));
                 if(searchptr->p1==NULL){
@@ -163,7 +164,9 @@ void addItem(unsigned int id,const char* s,int flag_autodelete){
                 initNode(searchptr->p1);
             }
             searchptr=searchptr->p1;
+            pthread_mutex_unlock(&treemutex);
         }else{
+            pthread_mutex_lock(&treemutex);
             if(searchptr->p0==NULL){
                 searchptr->p0=malloc(sizeof(struct StorageTreeNode));
                 if(searchptr->p0==NULL){
@@ -171,16 +174,20 @@ void addItem(unsigned int id,const char* s,int flag_autodelete){
                 }
                 initNode(searchptr->p0);
             }
+            
             searchptr=searchptr->p0;
+            pthread_mutex_unlock(&treemutex);
         }
         key=bitpush(key);
     }
     // now it iterated to the leaf node.
     // let it be it.
+    pthread_mutex_lock(&treemutex);
     if(searchptr->content!=NULL)
         buf=autoconcat(searchptr->content,buf,searchptr->content,buf);
     searchptr->content=buf;
     searchptr->mypos=id;
+    pthread_mutex_unlock(&treemutex);
 }
 
 void setItem(unsigned int id,const char* s){

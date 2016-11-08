@@ -1,2 +1,0 @@
-/usr/bin/ar qc libListFiles.a  CMakeFiles/ListFiles.dir/indexer.c.o
-/usr/bin/ranlib libListFiles.a
