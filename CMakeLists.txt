@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(q1)
-set(CMAKE_CXX_FLAGS "-lmagic -mcmodel=large -g")
+set(CMAKE_CXX_FLAGS "-lmagic -lpthread")
 aux_source_directory(. DIR_SRCS)
 add_subdirectory(lf)
 add_subdirectory(indexer)

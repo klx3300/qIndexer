@@ -7,6 +7,25 @@
 #include"indexer/indexer.h"
 #include"searcher/searcher.h"
 
+#ifndef _PTHREAD_H
+#include <pthread.h>
+#endif
+
+#ifndef _SEMAPHORE_H
+#include <semaphore.h>
+#endif
+
+void forkReadProcess(int fileindex){
+    sem_wait(&idle_threads);
+    int k;
+    sem_getvalue(&idle_threads,&k);
+    if(k>0){
+        pthread_t tmpthr;
+        pthread_create(&tmpthr,NULL,(void *)&readfile,(void*)files[fileindex]);
+
+    }
+}
+
 int main(int argc,char** argv){
     // building index.
     // check command line param
@@ -43,6 +62,7 @@ int main(int argc,char** argv){
         /*searcher("int");*/
         sortEntries();
         printEntries();
+        
     }else if(fullstrcmp("build",argv[1])){
         // FORCE BUILD INDEX.
         int filenumber=0;
@@ -54,12 +74,15 @@ int main(int argc,char** argv){
         for(int i=0;i<filenumber;i++){
             printf("CHECKING FILE %d/%d\n",i,filenumber-1);
             if(isTextfile(files[i])){
-                    readfile(files[i]);
+                    /*readfile(files[i]);*/
+                forkReadProcess(i);
             }
         }
         savedata();
         printf("INDEXING END\n");
+        sem_destroy(&idle_threads);
     }
+
     return 0;
 }
 

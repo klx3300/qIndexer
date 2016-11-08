@@ -7,6 +7,10 @@
 #IncludeRegexTransform: 
 
 /home/imzhwk/uniquestudio/q1/publicheader.h
+pthread.h
+-
+semaphore.h
+-
 
 /home/imzhwk/uniquestudio/q1/publicutils.h
 publicheader.h

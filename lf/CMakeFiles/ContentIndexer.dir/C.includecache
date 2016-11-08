@@ -23,4 +23,8 @@ stdio.h
 /home/imzhwk/uniquestudio/q1/lf/lf.h
 
 /home/imzhwk/uniquestudio/q1/publicheader.h
+pthread.h
+-
+semaphore.h
+-
 

@@ -1,6 +1,14 @@
 
 #define Q_PUBLIC_H
 
+#ifndef _PTHREAD_H
+#include <pthread.h>
+#endif
+
+#ifndef _SEMAPHORE_H
+#include <semaphore.h>
+#endif
+
 char origpath[4096];
 char files[65536][4096];
 
@@ -24,6 +32,12 @@ struct SearchResult{
 };
 
 struct SearchResult searchresult[65536];
+
+
+pthread_mutex_t treemutex;
+sem_t idle_threads;
+
+pthread_t threads[7];
 
 //typedef struct existence{
     //char* filename[4096];

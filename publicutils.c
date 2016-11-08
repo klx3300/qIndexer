@@ -6,6 +6,13 @@
 #ifndef Q_PUBLIC_H
 #include "publicheader.h"
 #endif
+#ifndef _PTHREAD_H
+#include <pthread.h>
+#endif
+
+#ifndef _SEMAPHORE_H
+#include <semaphore.h>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 unsigned int getLastBit(unsigned int a){
@@ -374,9 +381,13 @@ char* indexread(FILE* fp,int index){
     return tmpstr;
 }
 */
+
+
 void initmatches(){
     initNode(&database);
+    pthread_mutex_init(&treemutex,NULL);
     FLAG_DEBUG_ON=0;
+    sem_init(&idle_threads,0,7);
 }
 /*
 void setmatches(const char * id,const char * s,int appear){

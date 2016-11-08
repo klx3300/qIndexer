@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <magic.h>
+#include <pthread.h>
 #include <string.h>
 #include <ctype.h>
 #include "indexer.h"
@@ -37,16 +38,22 @@ void readfile(const char* filename){
             kw[k]=buf;
             kw[k+1]='\0';
         }else if(strlen(kw)){
+            // lock
+            pthread_mutex_lock(&treemutex);
             addmatches(kw,filename);
+            pthread_mutex_unlock(&treemutex);
             // reset kw
             //printf("KW STORAGE:%d/16384\n",indexnum);
             kw[0]='\0';
         }//detect as a word.
     }
     if(strlen(kw)){
+        pthread_mutex_lock(&treemutex);
         addmatches(kw,filename);
+        pthread_mutex_unlock(&treemutex);
     }
     free(kw);
     fclose(fp);
+    sem_post(&idle_threads);
 }
 
