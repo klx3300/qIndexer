@@ -15,6 +15,9 @@
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
+
+
+char* autoconcatx(const char* a,const char* b,char* ada,char* adb,int* asize,int bsize);
 unsigned int getLastBit(unsigned int a){
     return (a &((unsigned int) 1));
 }
@@ -146,16 +149,17 @@ char* getItem(unsigned int id){
     return searchptr->content;
 }
 
-void addItem(unsigned int id,const char* s,int flag_autodelete){
+void addItem(unsigned int id,const char* s,int flag_autodelete,int ssize){
     struct StorageTreeNode *searchptr=&database;
     unsigned int key=id;
-    char* buf=malloc(sizeof(char)*(strlen(s)+1));
+    int bufsize=strlen(s);
+    char* buf=malloc(sizeof(char)*(bufsize+1));
     strcpy(buf,s);
-    buf=autoconcat("|",buf,buf,NULL);
+    buf=autoconcatx("|",buf,buf,NULL,&bufsize,1);
     for(int i=0;i<32;i++){
         //printf("iterated to ln%d\n",i);
         if(getLastBit(key)){
-            pthread_mutex_lock(&treemutex);
+            /*pthread_mutex_lock(&treemutex);*/
             if(searchptr->p1==NULL){
                 searchptr->p1=malloc(sizeof(struct StorageTreeNode));
                 if(searchptr->p1==NULL){
@@ -164,9 +168,9 @@ void addItem(unsigned int id,const char* s,int flag_autodelete){
                 initNode(searchptr->p1);
             }
             searchptr=searchptr->p1;
-            pthread_mutex_unlock(&treemutex);
+            /*pthread_mutex_unlock(&treemutex);*/
         }else{
-            pthread_mutex_lock(&treemutex);
+            /*pthread_mutex_lock(&treemutex);*/
             if(searchptr->p0==NULL){
                 searchptr->p0=malloc(sizeof(struct StorageTreeNode));
                 if(searchptr->p0==NULL){
@@ -176,18 +180,20 @@ void addItem(unsigned int id,const char* s,int flag_autodelete){
             }
             
             searchptr=searchptr->p0;
-            pthread_mutex_unlock(&treemutex);
+            /*pthread_mutex_unlock(&treemutex);*/
         }
         key=bitpush(key);
     }
     // now it iterated to the leaf node.
     // let it be it.
-    pthread_mutex_lock(&treemutex);
+    /*pthread_mutex_lock(&treemutex);*/
     if(searchptr->content!=NULL)
-        buf=autoconcat(searchptr->content,buf,searchptr->content,buf);
+        buf=autoconcatx(searchptr->content,buf,searchptr->content,buf,(&(searchptr->counts)),bufsize);
+    else
+        searchptr->counts=bufsize;
     searchptr->content=buf;
     searchptr->mypos=id;
-    pthread_mutex_unlock(&treemutex);
+    /*pthread_mutex_unlock(&treemutex);*/
 }
 
 void setItem(unsigned int id,const char* s){
@@ -434,10 +440,11 @@ void setmatches(const char * id,const char * s,int appear){
     }
 }*/
 
-void addmatches(const char* id,const char * s){
+void addmatches(const char* id,const char * s,int ssize){
     unsigned int hash;
     hash=BKDRHash(id);
-    addItem(hash,s,0);
+    addItem(hash,s,0,ssize);
+
 }
 
 void removematches(const char* id,const char* s){
@@ -446,7 +453,7 @@ void removematches(const char* id,const char* s){
     if(orig!=NULL){
         char* buf=autoconcat("|",s,NULL,NULL);
         orig=autoremove(orig,buf,orig,buf);
-        addItem(hash,orig,1);
+        addItem(hash,orig,1,strlen(orig));
     }
 }
 
@@ -465,6 +472,18 @@ char* autoconchar(char *a,char b,unsigned int *currlen,unsigned int *mlen,int FL
     return buffer;
 }
 
+char* autoconcatx(const char* a,const char* b,char* ada,char* adb,int* asize,int bsize){
+    int tmpk=(*asize);
+    char *buf=malloc(sizeof(char)*(tmpk+bsize+1));
+    strcpy(buf,a);
+    strcat(buf,b);
+    if(ada!=NULL)
+        free(ada);
+    if(adb!=NULL)
+        free(adb);
+    (*asize)+=bsize;
+    return buf;
+}
 
 char* autoconcat(const char* a,const char* b,char* ada,char* adb){
     char *buf=malloc(sizeof(char)*(strlen(a)+strlen(b)+1));

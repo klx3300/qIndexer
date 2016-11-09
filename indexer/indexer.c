@@ -28,28 +28,29 @@ void readfile(const char* filename){
     char buf;
     char *kw=malloc(sizeof(char)*16384);
     kw[0]='\0';
+    int kwlen=0;
     if(fp==NULL){
         printf("Fatal Error:specific file can't be opened.");
         return;
     }
     while((buf=fgetc(fp))!=EOF){
-        if(isalpha(buf) || buf=='_'){
-            int k=strlen(kw);
-            kw[k]=buf;
-            kw[k+1]='\0';
-        }else if(strlen(kw)){
+        if(isalpha(buf) || buf=='_' || (buf>=48 && buf<=57)){
+            kw[kwlen]=buf;
+            kw[++kwlen]='\0';
+        }else if(kwlen){
             // lock
-            addmatches(kw,filename);
+            addmatches(kw,filename,kwlen);
             // reset kw
             //printf("KW STORAGE:%d/16384\n",indexnum);
             kw[0]='\0';
+            kwlen=0;
         }//detect as a word.
     }
-    if(strlen(kw)){
-        addmatches(kw,filename);
+    if(kwlen){
+        addmatches(kw,filename,kwlen);
     }
     free(kw);
     fclose(fp);
-    sem_post(&idle_threads);
+    /*sem_post(&idle_threads);*/
 }
 

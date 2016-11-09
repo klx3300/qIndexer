@@ -11,7 +11,7 @@ void printEntries();
 void savedata();
 int loaddata();
 void setmatches(const char* id,const char* s);
-void addmatches(const char* id,const char* s);
+void addmatches(const char* id,const char* s,int);
 void removematches(const char* id,const char* s);
 
 char* autoconcat(const char* a ,const char* b ,char* ada,char* adb);

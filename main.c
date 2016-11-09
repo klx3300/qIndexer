@@ -74,8 +74,8 @@ int main(int argc,char** argv){
         for(int i=0;i<filenumber;i++){
             printf("CHECKING FILE %d/%d\n",i,filenumber-1);
             if(isTextfile(files[i])){
-                    /*readfile(files[i]);*/
-                forkReadProcess(i);
+                    readfile(files[i]);
+                /*forkReadProcess(i);*/
             }
         }
         savedata();
