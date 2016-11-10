@@ -18,6 +18,11 @@
 
 
 char* autoconcatx(const char* a,const char* b,char* ada,char* adb,int* asize,int bsize);
+
+unsigned int getLastTwoBit(unsigned int a){
+    return (a &((unsigned int ) 3));
+}
+
 unsigned int getLastBit(unsigned int a){
     return (a &((unsigned int) 1));
 }
@@ -231,6 +236,8 @@ void setItem(unsigned int id,const char* s){
     if(id==(unsigned int)4055505040)
         printf("LOOP OUT\n");
     searchptr->content=buf;
+    searchptr->counts=strlen(buf);
+    searchptr->mypos=id;
 }
 
 const char* getDirName(unsigned int id,struct StorageTreeNode *root){
@@ -395,12 +402,87 @@ char* indexread(FILE* fp,int index){
 }
 */
 
+void initqueue(){
+    for(int i=0;i<4;i++){
+        for(int j=0;j<256;j++){
+            ioqueue[i].requests[j].id=0;
+            ioqueue[i].requests[j].content=NULL;
+        }
+        ioqueue[i].counts=0;
+    }
+}
+
+//warning: s shouldn't be freed out of provided queue operations
+//or you will get a segmentation fault.
+void enqueue(unsigned int queueid,unsigned int id,char *s){
+    // wait for queue
+    while(ioqueue[queueid].counts==256);
+
+    pthread_mutex_lock(&queuemutex[queueid]);
+    ioqueue[queueid].requests[ioqueue[queueid].counts].id=id;
+    ioqueue[queueid].requests[ioqueue[queueid].counts].content=s;
+    ioqueue[queueid].counts++;
+    pthread_mutex_unlock(&queuemutex[queueid]);
+}
+
+//warning:dequeue will not release the char* memory
+//you have to release it manually or you will have memory leaks.
+void dequeue(unsigned int queueid,unsigned int *ids,char** ss){
+    pthread_mutex_lock(&queuemutex[queueid]);
+    ioqueue[queueid].counts--;
+    *ids=ioqueue[queueid].requests[ioqueue[queueid].counts].id;
+    *ss=ioqueue[queueid].requests[ioqueue[queueid].counts].content;
+    pthread_mutex_unlock(&queuemutex[queueid]);
+}
+
+void questfetcher(unsigned int *queueid){
+    printf("THREAD %u START\n",*queueid);
+    while(!flag_threadstop[*queueid]){
+        if(ioqueue[*queueid].counts>0){
+           unsigned int id;char* s;
+           dequeue(*queueid,&id,&s);
+           addItem(id,s,1,strlen(s));
+        }
+    }
+}
+
+void initthreads(){
+    //open up the first two levels of tree-in case of malloc at the same time.
+    database.p0=malloc(sizeof(struct StorageTreeNode));
+    initNode(database.p0);
+    database.p1=malloc(sizeof(struct StorageTreeNode));
+    initNode(database.p1);
+    database.p0->p0=malloc(sizeof(struct StorageTreeNode));
+    initNode(database.p0->p0);
+    database.p0->p1=malloc(sizeof(struct StorageTreeNode));
+    initNode(database.p0->p1);
+    database.p1->p0=malloc(sizeof(struct StorageTreeNode));
+    initNode(database.p1->p0);
+    database.p1->p1=malloc(sizeof(struct StorageTreeNode));
+    initNode(database.p1->p1);
+
+    unsigned int *identifiers[4];
+    printf("START THREAD FORKING\n");
+    for(int i=0;i<4;i++){
+        identifiers[i]=malloc(sizeof(unsigned int));
+        (*identifiers[i])=i;
+        pthread_t tmpthr;
+        pthread_create(&tmpthr,NULL,(void *)&questfetcher,(void*)identifiers[i]);
+    }
+}
 
 void initmatches(){
     initNode(&database);
     pthread_mutex_init(&treemutex,NULL);
+    for(int i=0;i<4;i++){
+        pthread_mutex_init(&queuemutex[i],NULL);
+        flag_threadstop[i]=0;
+    }
     FLAG_DEBUG_ON=0;
-    sem_init(&idle_threads,0,7);
+    sem_init(&idle_threads,0,4);
+    initqueue();
+    printf("QUEUE INIT END\n");
+    initthreads();
 }
 /*
 void setmatches(const char * id,const char * s,int appear){
@@ -440,11 +522,11 @@ void setmatches(const char * id,const char * s,int appear){
     }
 }*/
 
-void addmatches(const char* id,const char * s,int ssize){
-    unsigned int hash;
+void addmatches(const char* id,char * s,int ssize){
+    unsigned int hash,tmpv;
     hash=BKDRHash(id);
-    addItem(hash,s,0,ssize);
-
+    tmpv=getLastTwoBit(hash);
+    enqueue(tmpv,hash,s);
 }
 
 void removematches(const char* id,const char* s){

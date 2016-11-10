@@ -33,11 +33,25 @@ struct SearchResult{
 
 struct SearchResult searchresult[65536];
 
+pthread_mutex_t queuemutex[4];
 
 pthread_mutex_t treemutex;
 sem_t idle_threads;
 
-pthread_t threads[7];
+pthread_t threads[4];
+
+typedef struct IORequest{
+    unsigned int id;
+    char* content;
+}IORequest;
+
+typedef struct IOQueue{
+    unsigned int counts;
+    IORequest requests[256];
+}IOQueue;
+
+IOQueue ioqueue[4];
+int flag_threadstop[4];
 
 //typedef struct existence{
     //char* filename[4096];
