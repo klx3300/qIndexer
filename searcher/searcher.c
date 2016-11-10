@@ -31,6 +31,7 @@ void searcher(const char* kw){
     printf("EXISTENCE PATTERN:%s\n",existence);
     char* buffer=malloc(sizeof(char)*(strlen(existence)+1));
     strcpy(buffer,existence);
+    buffer=autoconcat(buffer,"|",buffer,NULL);
     int mlength=strlen(buffer);
     int lastpos=1;
     for(int i=1;i<mlength;i++){
@@ -42,7 +43,7 @@ void searcher(const char* kw){
             lastpos=i+1;
         }
     }
-    for(int i=1;i<size;i++){
+    for(int i=0;i<size;i++){
         /*printf("%s with %d times\n",getDirName(hashes[i],&dirTree),getDirCount(hashes[i],&dirTree));*/
         addEntries(getDirName(hashes[i],&dirTree),kw,getDirCount(hashes[i],&dirTree));
     }

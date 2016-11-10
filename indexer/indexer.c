@@ -10,7 +10,7 @@
 
 
 int isTextfile(const char* filename){
-    printf("CHECKING MIME : %s\n",filename);
+    /*printf("CHECKING MIME : %s\n",filename);*/
     const char* mime;
     int i=0;
     magic_t magic;
@@ -22,8 +22,8 @@ int isTextfile(const char* filename){
     return i;
 }
 
-void readfile(const char* filename){
-    printf("READING %s\n",filename);
+void readfile(char* filename){
+    /*printf("READING %s\n",filename);*/
     FILE *fp=fopen(filename,"r");
     char buf;
     char *kw=malloc(sizeof(char)*16384);

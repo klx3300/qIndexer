@@ -6,7 +6,7 @@
 #include"lf/lf.h"
 #include"indexer/indexer.h"
 #include"searcher/searcher.h"
-
+#include"ttyutils/qoutputctrl.h"
 #ifndef _PTHREAD_H
 #include <pthread.h>
 #endif
@@ -40,19 +40,24 @@ int main(int argc,char** argv){
         int filenumber=0;
         strcpy(origpath,argv[2]);
         iterate_all_files(argv[2],&filenumber);
-        printf("iterate end.\n");
         initmatches();
         initSearchResult();
         if(!loaddata()){
-            for(int i=0;i<filenumber;i++){
+            printf("indexing...[                              ]");
+            qmoveleft(30);
+            int anothercounter=0;
+            for(int i=0;i<filenumber;i++,anothercounter++){
                 printf("Checking file %d/%d\n",i,filenumber-1);
+                if(anothercounter==filenumber/30){
+                    printf("=");
+                    anothercounter=0;
+                }
                 if(isTextfile(files[i])){
                     readfile(files[i]);
                 }
             }
             savedata();
         }
-        printf("indexing end.\n");
         // try searching
         for(int i=3;i<argc;i++){
             searcher(argv[i]);
@@ -72,7 +77,7 @@ int main(int argc,char** argv){
         initmatches();
         initSearchResult();
         for(int i=0;i<filenumber;i++){
-            printf("CHECKING FILE %d/%d\n",i,filenumber-1);
+            printf("CHECKING FILE %d/%d,THREAD STAT %d,%d,%d,%d\n",i,filenumber-1,ioqueue[0].counts,ioqueue[1].counts,ioqueue[2].counts,ioqueue[3].counts);
             if(isTextfile(files[i])){
                     readfile(files[i]);
                 /*forkReadProcess(i);*/
