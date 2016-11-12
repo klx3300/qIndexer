@@ -10,7 +10,7 @@ void sortEntries();
 void printEntries();
 void savedata();
 int loaddata();
-void setmatches(const char* id,const char* s);
+void setmatches(const char* id,char* s);
 void addmatches(const char* id,char* s,int);
 void removematches(const char* id,const char* s);
 
@@ -21,7 +21,8 @@ char* autoremove(const char *a,const char *b,char* ada,char* adb);
 
 void initNode(struct StorageTreeNode *node);
 
-char* getItem(unsigned int);
+NodeInfo* getItem(unsigned int);
+ 
 
 const char* getDirName(unsigned int,struct StorageTreeNode*);
 int getDirCount(unsigned int,struct StorageTreeNode *);

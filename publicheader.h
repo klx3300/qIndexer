@@ -12,8 +12,15 @@
 char origpath[4096];
 char files[65536][4096];
 
+typedef struct NodeInfo{
+    char* filepath;
+    int times;
+    unsigned int hashv;
+    struct NodeInfo *next;
+}NodeInfo;
 
 struct StorageTreeNode{
+    NodeInfo* info;
     char* content;
     int counts;
     unsigned int mypos;

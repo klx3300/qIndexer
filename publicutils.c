@@ -17,6 +17,8 @@
 #include <sys/stat.h>
 
 
+char *qitoa(int src);
+unsigned int BKDRHash(const char* s);
 char* autoconcatx(const char* a,const char* b,char* ada,char* adb,int* asize,int bsize);
 
 unsigned int getLastTwoBit(unsigned int a){
@@ -33,10 +35,98 @@ unsigned int bitpush(unsigned int a){
 
 void initNode(struct StorageTreeNode *node){
     node->content=NULL;
+    node->info=NULL;
     node->p0=NULL;
     node->p1=NULL;
     node->counts=0;
     node->mypos=0;
+}
+
+void initInfo(NodeInfo* info){
+    info->filepath=NULL;
+    (info)->times=0;
+    (info)->hashv=0;
+    (info)->next=NULL;
+}
+
+void addInfo(NodeInfo* info,char* s,int times){
+    if(info==NULL){
+        return;
+    }
+    unsigned int hash=BKDRHash(s);
+    int FLAG_REACHED=0;
+    char* buffer=malloc(sizeof(char)*(strlen(s)+1));
+    strcpy(buffer,s);
+    NodeInfo *searchptr;
+    for(searchptr=info;searchptr!=NULL;searchptr=searchptr->next){
+        if(searchptr->hashv==hash){
+            searchptr->times+=times;
+            FLAG_REACHED=1;
+            break;
+        }
+        if(searchptr->next==NULL){
+            break;
+        }
+    }
+    if(!FLAG_REACHED){
+        searchptr->next=malloc(sizeof(NodeInfo));
+        initInfo(searchptr->next);
+        searchptr=searchptr->next;
+        searchptr->filepath=buffer;
+        searchptr->hashv=hash;
+        searchptr->times=times;
+        
+    }
+}
+
+char* saveInfo(NodeInfo *info){
+    char* buf=malloc(sizeof(char)*16);
+    buf[0]='\0';
+    int length=0;
+    for(NodeInfo* searchptr=info;searchptr!=NULL;searchptr=searchptr->next){
+        char* tmp=qitoa(searchptr->times);
+        if(searchptr->filepath==NULL){
+            free(tmp);
+            continue;
+        }
+        buf=autoconcatx(buf,"|",buf,NULL,&length,1);\
+        buf=autoconcatx(buf,searchptr->filepath,buf,NULL,&length,strlen(searchptr->filepath));
+        buf=autoconcatx(buf,"#",buf,NULL,&length,1);
+        buf=autoconcatx(buf,tmp,buf,tmp,&length,strlen(tmp));
+    }
+    return buf;
+}
+
+void readInfo(NodeInfo *info,const char *s){
+    char* buffer=malloc(sizeof(char)*(strlen(s)+1));
+    strcpy(buffer,s);
+    int mlength=strlen(buffer);
+    buffer[0]='\0';
+    int lastpos=1;
+    for(int i=1;i<mlength;i++){
+        if(buffer[i]=='|'){
+            buffer[i]='\0';
+            {
+                int j;
+                for(j=lastpos;j<i;j++){
+                    if(buffer[j]=='#'){
+                        buffer[j]='\0';
+                        break;
+                    }
+                }
+                addInfo(info,buffer+lastpos,atoi(buffer+j+1));
+            }
+            lastpos=i+1;
+        }
+    }
+    int j;
+    for(j=lastpos;j<mlength;j++){
+        if(buffer[j]=='#'){
+            buffer[j]='\0';
+            break;
+        }
+    }
+    addInfo(info,buffer+lastpos,atoi(buffer+j+1));
 }
 
 void initSearchResult(){
@@ -129,7 +219,7 @@ void printEntries(){
     }
 }
 
-char* getItem(unsigned int id){
+NodeInfo* getItem(unsigned int id){
     struct StorageTreeNode *searchptr=&database;
     int flag_searchsucc=0;
     unsigned int key=id;
@@ -151,16 +241,15 @@ char* getItem(unsigned int id){
         }
         key=bitpush(key);
     }
-    return searchptr->content;
+    return searchptr->info;
 }
 
-void addItem(unsigned int id,const char* s,int flag_autodelete,int ssize){
+void addItem(unsigned int id,char* s,int flag_autodelete,int ssize){
     struct StorageTreeNode *searchptr=&database;
     unsigned int key=id;
     int bufsize=strlen(s);
     char* buf=malloc(sizeof(char)*(bufsize+1));
     strcpy(buf,s);
-    buf=autoconcatx("|",buf,buf,NULL,&bufsize,1);
     for(int i=0;i<32;i++){
         //printf("iterated to ln%d\n",i);
         if(getLastBit(key)){
@@ -192,12 +281,15 @@ void addItem(unsigned int id,const char* s,int flag_autodelete,int ssize){
     // now it iterated to the leaf node.
     // let it be it.
     /*pthread_mutex_lock(&treemutex);*/
-    if(searchptr->content!=NULL)
-        buf=autoconcatx(searchptr->content,buf,searchptr->content,buf,(&(searchptr->counts)),bufsize);
-    else
-        searchptr->counts=bufsize;
-    searchptr->content=buf;
+    if(searchptr->info==NULL){
+        searchptr->info=malloc(sizeof(NodeInfo));
+        initInfo(searchptr->info); 
+    }else{
+        
+    }
     searchptr->mypos=id;
+    addInfo(searchptr->info,buf,1);
+    free(buf);
     /*pthread_mutex_unlock(&treemutex);*/
 }
 
@@ -233,11 +325,10 @@ void setItem(unsigned int id,const char* s){
     }
     // now it iterated to the leaf node.
     // let it be it.
-    if(id==(unsigned int)4055505040)
-        printf("LOOP OUT\n");
-    searchptr->content=buf;
-    searchptr->counts=strlen(buf);
-    searchptr->mypos=id;
+    searchptr->info=malloc(sizeof(NodeInfo));
+    initInfo(searchptr->info);
+    readInfo(searchptr->info,buf);
+    free(buf);
 }
 
 const char* getDirName(unsigned int id,struct StorageTreeNode *root){
@@ -528,7 +619,7 @@ void addmatches(const char* id,char * s,int ssize){
     tmpv=getLastTwoBit(hash);
     enqueue(tmpv,hash,s);
 }
-
+/*
 void removematches(const char* id,const char* s){
     unsigned int hash=BKDRHash(id);
     char* orig=getItem(hash);
@@ -538,6 +629,7 @@ void removematches(const char* id,const char* s){
         addItem(hash,orig,1,strlen(orig));
     }
 }
+*/
 
 char* autoconchar(char *a,char b,unsigned int *currlen,unsigned int *mlen,int FLAG_AUTODELETE){
     char *buffer=a;
@@ -609,7 +701,7 @@ void fetcher(struct StorageTreeNode *node,FILE* fp){
         printf("RECURSIVE MEET %u/%u\n",node->mypos,(unsigned int)4294967295);
         fputs(qutoa(node->mypos),fp);
         fputs(":",fp);
-        fputs(node->content,fp);
+        fputs(saveInfo(node->info),fp);
         fputs("\n",fp);
     }else{
         if(node->p0!=NULL)
@@ -668,7 +760,7 @@ int loaddata(){
                 i++;
                 hash=atoi(sbuf);
                 printf("SETTING %u/%u\n",hash,(unsigned int)4294967295);
-                setItem(hash,sbuf+i);
+                ;setItem(hash,sbuf+i);
                 sbuf[0]='\0';
                 hash=0;
         }

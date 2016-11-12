@@ -22,14 +22,14 @@ void searcher(const char* kw){
     initNode(&dirTree);
     unsigned int hash=BKDRHash(kw);
     printf("KW HASHV:%u\n",hash);
-    const char* existence=getItem(hash);
+    NodeInfo* existence=getItem(hash);
     if(existence==NULL){
         printf("NO MATCHING PATTERN.\n");
         return;
     }
     //separate items in string.
-    printf("EXISTENCE PATTERN:%s\n",existence);
-    char* buffer=malloc(sizeof(char)*(strlen(existence)+1));
+    printf("PATTERN FOUND.\n");
+    /*char* buffer=malloc(sizeof(char)*(strlen(existence)+1));
     strcpy(buffer,existence);
     buffer=autoconcat(buffer,"|",buffer,NULL);
     int mlength=strlen(buffer);
@@ -42,11 +42,16 @@ void searcher(const char* kw){
             addDirItem(h,buffer+lastpos,&dirTree);
             lastpos=i+1;
         }
+    }*/
+    for(;existence!=NULL;existence=existence->next){
+        if(existence->filepath!=NULL){
+        addEntries(existence->filepath,kw,existence->times);
+        }
     }
-    for(int i=0;i<size;i++){
-        /*printf("%s with %d times\n",getDirName(hashes[i],&dirTree),getDirCount(hashes[i],&dirTree));*/
+    /*for(int i=0;i<size;i++){
+        printf("%s with %d times\n",getDirName(hashes[i],&dirTree),getDirCount(hashes[i],&dirTree));
         addEntries(getDirName(hashes[i],&dirTree),kw,getDirCount(hashes[i],&dirTree));
-    }
+    }*/
     
 
 
